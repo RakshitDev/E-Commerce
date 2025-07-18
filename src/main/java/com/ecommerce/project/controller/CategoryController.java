@@ -35,33 +35,35 @@ public class CategoryController {
 
 	@GetMapping("/public/categories")
 	public ResponseEntity<CategoryResponse> getAllCatergory(
-			@RequestParam(name="pageNumber" ,defaultValue = AppConstants.PAGE_NUMBER ,required = false) Integer pageNumber ,
-			@RequestParam(name = "pageSize" ,defaultValue = AppConstants.PAGE_SIZE ,required = false) Integer pageSize,
-			@RequestParam(name = "sortBy"   ,defaultValue = AppConstants.SORT_CATEGORY_BY ,required = false) String sortBy,
-			@RequestParam(name = "sortOrder",defaultValue = AppConstants.SORT_DIR ,required = false) String sortOrder) {
-		CategoryResponse categories = categoryService.getAllCategories(pageNumber,pageSize,sortBy,sortOrder);
+			@RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+			@RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+			@RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_CATEGORY_BY, required = false) String sortBy,
+			@RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder) {
+		CategoryResponse categories = categoryService.getAllCategories(pageNumber, pageSize, sortBy, sortOrder);
 		return new ResponseEntity<>(categories, HttpStatus.OK);
 	}
 
 	@PostMapping("/public/categories")
 	public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
-		 CategoryDto category = categoryService.creatCategory(categoryDto);
+		CategoryDto category = categoryService.creatCategory(categoryDto);
 		return new ResponseEntity<>(category, HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/admin/categories/{categoryId}")
 	public ResponseEntity<CategoryDto> deleteCatogeryById(@PathVariable Long categoryId) {
 
-		 CategoryDto deleteCategory = categoryService.deleteCategoryById(categoryId);
+		CategoryDto deleteCategory = categoryService.deleteCategoryById(categoryId);
 		return new ResponseEntity<>(deleteCategory, HttpStatus.OK);
 
 	}
 
 	@PutMapping("/admin/categories/{categoryId}")
-	public ResponseEntity<CategoryDto> updateCategory(@PathVariable Long categoryId, @RequestBody CategoryDto categoryDto) {
+	public ResponseEntity<CategoryDto> updateCategory(@PathVariable Long categoryId,
+			@RequestBody CategoryDto categoryDto) {
 		CategoryDto categoryDtos = categoryService.updateCategory(categoryId, categoryDto);
-		return new ResponseEntity<>(categoryDtos,
-				HttpStatus.OK);
+		return new ResponseEntity<>(categoryDtos, HttpStatus.OK);
 	}
+
+	
 
 }

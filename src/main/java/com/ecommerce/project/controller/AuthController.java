@@ -8,7 +8,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,12 +69,11 @@ public class AuthController {
 		}
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		UserDetailImpl userDetails = (UserDetailImpl) authentication.getPrincipal();
-		String JwtToken = jwtUtils.generateTokenFromUserName(userDetails);
+		ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
 		List<String> role = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
 				.collect(Collectors.toList());
-		UserInfoResponse userInfoResponse = new UserInfoResponse(userDetails.getId(), JwtToken,
-				userDetails.getUsername(), role);
-		return ResponseEntity.ok(userInfoResponse);
+		UserInfoResponse userInfoResponse = new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), role,jwtCookie.toString());
+		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString()).body(userInfoResponse);
 	}
 
 	@PostMapping(value = "/signup", produces = "application/json")
@@ -116,6 +118,32 @@ public class AuthController {
 		user.setRoles(roles);
 		userRepository.save(user);
 		return ResponseEntity.ok(new MessageResponse("User Registered successfully"));
+	}
+
+	@GetMapping("/username")
+	public String currentUserName(Authentication authentication) {
+		if (authentication != null) {
+			return authentication.getName();
+		} else
+			return "";
+
+	}
+
+	@GetMapping("/user")
+	public ResponseEntity<?> getUserDetails(Authentication authentication) {
+		UserDetailImpl userDetails = (UserDetailImpl) authentication.getPrincipal();
+
+		List<String> role = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+				.collect(Collectors.toList());
+		UserInfoResponse userInfoResponse = new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), role);
+		return ResponseEntity.ok().body(userInfoResponse);
+	}
+
+	@PostMapping("/signout")
+	public ResponseEntity<?> signoutUser() {
+		ResponseCookie cookie = jwtUtils.getCleanCookie();
+		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
+				.body(new MessageResponse("You have been loggedOut!"));
 	}
 
 }

@@ -2,6 +2,8 @@ package com.ecommerce.project.security.response;
 
 import java.util.List;
 
+import org.springframework.http.ResponseCookie;
+
 public class UserInfoResponse {
 	private Long id;
     private String token;
@@ -9,14 +11,23 @@ public class UserInfoResponse {
     private String username;
     private List<String> roles;
 
-    public UserInfoResponse(Long id,String token, String username, List<String> roles) {
+    public UserInfoResponse(Long id,String token, List<String> roles, String username) {
         this.id=id;
     	this.token = token;
         this.username = username;
         this.roles = roles;
     }
 
-    public String getToken() {
+   
+
+	public UserInfoResponse(Long id, String username, List<String> role) {
+		// TODO Auto-generated constructor stub
+		this.id=id;
+		this.username = username;
+        this.roles = role;
+	}
+
+	public String getToken() {
         return token;
     }
 
